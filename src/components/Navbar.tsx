@@ -5,7 +5,7 @@ import { gql, useMutation } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useContext } from 'react'
-import { UserContext, GET_CURRENTUSER } from '../contexts/user'
+import { UserContext } from '../contexts/user'
 
 const SIGN_OUT = gql`
   mutation {
@@ -19,6 +19,7 @@ const SIGN_OUT = gql`
 
 const Navbar = () => {
   const [signOut, { data }] = useMutation(SIGN_OUT)
+
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const value = useContext(UserContext)
@@ -27,11 +28,9 @@ const Navbar = () => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault()
-    signOut({ refetchQueries: [{ query: GET_CURRENTUSER }] })
 
-    setTimeout(() => {
-      value?.setCurrentUser(null)
-    }, 3000)
+    signOut()
+    value?.setCurrentUser(null)
   }
 
   useEffect(() => {
@@ -42,7 +41,7 @@ const Navbar = () => {
 
       if (userErrors.length > 0) return setError(userErrors[0].message)
       localStorage.removeItem('token')
-      navigate('/login')
+      navigate('/login', { replace: true })
     }
   }, [data])
   return (
